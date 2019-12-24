@@ -39,8 +39,8 @@ void ProcessRequest(const char *pRequest, void *pData, void *&pOutput, int &N)
     //       N is the size of output, must be a non-negative number
     string tmpRequest = pRequest;
     removeExtraSpaces(tmpRequest);
+    RemoveChar(tmpRequest, '"');
     TDataset *_pData = (TDataset *)pData;
-
     /// CL
     /// Count the number of lines in the dataset.
     if (tmpRequest == "CL")
@@ -109,9 +109,10 @@ void ProcessRequest(const char *pRequest, void *pData, void *&pOutput, int &N)
     ///FS <station_name>
     /// Find a station with the given name
     /// Return the first station_id if found, -1 otherwise
-    if (tmpRequest.substr(0, 3) == "FS ")
+    if (tmpRequest.substr(0, 2) == "FS")
     {
-        string stationName = tmpRequest.substr(3);
+        string stationName = tmpRequest.substr(2);
+        removeExtraSpaces(stationName);
         int *rs = new int(getStationIdByName(_pData, stationName));
         pOutput = (void *)rs;
         N = 1;
@@ -120,7 +121,7 @@ void ProcessRequest(const char *pRequest, void *pData, void *&pOutput, int &N)
     /// SLP <station_id> <track_id>
     /// Find the position of a station in a track.
     /// Return the index of that station if found, -1 otherwise.
-    if (tmpRequest.substr(0, 43) == "SLP ")
+    if (tmpRequest.substr(0, 4) == "SLP ")
     {
         int i = tmpRequest.find(' '), stationId, trackId;
         string tmp = extract(tmpRequest, ' ', ' ');

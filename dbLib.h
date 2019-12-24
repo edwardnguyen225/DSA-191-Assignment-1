@@ -85,6 +85,7 @@ public:
 
 // Please add more or modify as needed
 string extract(string &str, char beg, char end);
+void RemoveChar(string &str, char c); 
 void removeExtraSpaces(string &str);
 int string2int(string str);
 

@@ -32,12 +32,25 @@ string extract(string &str, char beg, char end)
     return string();
 }
 
+void RemoveChar(string &str, char c)
+{
+    string result;
+    for (size_t i = 0; i < str.size(); i++)
+    {
+        char currentChar = str[i];
+        if (currentChar != c)
+            result += currentChar;
+    }
+    str = result;
+}
+
 void removeExtraSpaces(string &str)
 {
     int len = str.length();
     while (str[0] == ' ')
     {
-        str.erase(0, 1); len--;
+        str.erase(0, 1);
+        len--;
     }
 
     while (str[len - 1] == ' ')
@@ -45,7 +58,7 @@ void removeExtraSpaces(string &str)
         str.pop_back();
         len--;
     }
-    
+
     for (int i = 1; i < len - 1; i++)
     {
         if (str[i] == ' ' && str[i + 1] == ' ')
@@ -206,12 +219,7 @@ void LoadStations(TDataset *&pData)
                 getline(fileIn, tmp, ',');
                 pStation.name += "," + tmp;
             }
-
-            if (pStation.name.front() == '\"' && pStation.name.back() == '\"')
-            {
-                pStation.name.erase(0, 1);
-                pStation.name.pop_back();
-            }
+            RemoveChar(pStation.name, '"');
 
             getline(fileIn, pStation.geometry, ',');
 
@@ -327,21 +335,13 @@ L1Item<TCity> *findCityById(TDataset *pData, int id)
     L1Item<TCity> *pCity;
     bool isFound = false;
     pCity = pData->cityList->getItem(0);
-    for (int i = 0; i < pData->cityList->getSize(); i++)
+    while (pCity != NULL)
     {
         if (pCity->data.id == id)
-        {
-            isFound = true;
-            break;
-        }
+            return pCity;
         pCity = pCity->pNext;
     }
-    if (!isFound)
-    {
-        pCity = NULL;
-        return pCity;
-    }
-    return pCity;
+    return NULL;
 }
 
 L1Item<TCity> *findCityByName(TDataset *pData, string name)
@@ -349,21 +349,13 @@ L1Item<TCity> *findCityByName(TDataset *pData, string name)
     L1Item<TCity> *pCity;
     bool isFound = false;
     pCity = pData->cityList->getItem(0);
-    for (int i = 0; i < pData->cityList->getSize(); i++)
+    while (pCity != NULL)
     {
         if (pCity->data.name == name)
-        {
-            isFound = true;
-            break;
-        }
+            return pCity;
         pCity = pCity->pNext;
     }
-    if (!isFound)
-    {
-        pCity = NULL;
-        return pCity;
-    }
-    return pCity;
+    return NULL;
 }
 
 L1Item<TStation> *findStationById(TDataset *pData, int id)
@@ -371,21 +363,13 @@ L1Item<TStation> *findStationById(TDataset *pData, int id)
     L1Item<TStation> *pStation;
     bool isFound = false;
     pStation = pData->stationList->getItem(0);
-    for (int i = 0; i < pData->stationList->getSize(); i++)
+    while (pStation != NULL)
     {
         if (pStation->data.id == id)
-        {
-            isFound = true;
-            break;
-        }
+            return pStation;
         pStation = pStation->pNext;
     }
-    if (!isFound)
-    {
-        pStation = NULL;
-        return pStation;
-    }
-    return pStation;
+    return NULL;
 }
 
 L1Item<TStation> *findStationByName(TDataset *pData, string name)
@@ -393,21 +377,13 @@ L1Item<TStation> *findStationByName(TDataset *pData, string name)
     L1Item<TStation> *pStation;
     bool isFound = false;
     pStation = pData->stationList->getItem(0);
-    for (int i = 0; i < pData->stationList->getSize(); i++)
+    while (pStation != NULL)
     {
         if (pStation->data.name == name)
-        {
-            isFound = true;
-            break;
-        }
+            return pStation;
         pStation = pStation->pNext;
     }
-    if (!isFound)
-    {
-        pStation = NULL;
-        return pStation;
-    }
-    return pStation;
+    return NULL;
 }
 
 L1Item<TTrack> *findTrackById(TDataset *pData, int id)
@@ -415,21 +391,13 @@ L1Item<TTrack> *findTrackById(TDataset *pData, int id)
     L1Item<TTrack> *pTrack;
     bool isFound = false;
     pTrack = pData->trackList->getItem(0);
-    for (int i = 0; i < pData->trackList->getSize(); i++)
+    while (pTrack != NULL)
     {
         if (pTrack->data.id == id)
-        {
-            isFound = true;
-            break;
-        }
+            return pTrack;
         pTrack = pTrack->pNext;
     }
-    if (!isFound)
-    {
-        pTrack = NULL;
-        return pTrack;
-    }
-    return pTrack;
+    return NULL;
 }
 
 L1Item<TLine> *findLineById(TDataset *pData, int id)
@@ -437,21 +405,13 @@ L1Item<TLine> *findLineById(TDataset *pData, int id)
     L1Item<TLine> *pLine;
     bool isFound = false;
     pLine = pData->lineList->getItem(0);
-    for (int i = 0; i < pData->lineList->getSize(); i++)
+    while (pLine != NULL)
     {
         if (pLine->data.id == id)
-        {
-            isFound = true;
-            break;
-        }
+            return pLine;
         pLine = pLine->pNext;
     }
-    if (!isFound)
-    {
-        pLine = NULL;
-        return pLine;
-    }
-    return pLine;
+    return NULL;
 }
 
 int getCityIdByName(TDataset *pData, string name)
@@ -476,12 +436,14 @@ int getPosOfStationInTrack(TDataset *pData, int stationId, int trackId)
 {
     string tmp;
     L1Item<TTrack> *pTrack = findTrackById(pData, trackId);
+    if (pTrack == NULL)
+        return -1;
     L1Item<TStation> *pStation = findStationById(pData, stationId);
-    string line = pTrack->data.geometry,
-           point = pStation->data.geometry;
-
-    line = extract(line, '(', ')');
-    point = extract(point, '(', ')');
+    if (pStation == NULL)
+        return -1;
+    string line = extract(pTrack->data.geometry, '(', ')'),
+           point = extract(pStation->data.geometry, '(', ')');
+    cout << point << endl;
     int index = 0, indexOfComma;
     bool endOfLine = false, isFound = false;
     while (!endOfLine)
@@ -497,17 +459,11 @@ int getPosOfStationInTrack(TDataset *pData, int stationId, int trackId)
             tmp = line;
             endOfLine = true;
         }
-        if (point == tmp)
-        {
-            isFound = true;
-            break;
-        }
+        if (tmp == point)
+            return index;
         index++;
     }
-    if (isFound)
-        return index;
-    else
-        return -1;
+    return -1;
 }
 
 int getNumOfLines(TDataset *pData)
@@ -521,18 +477,15 @@ int getNumOfLinesInCity(TDataset *pData, string cityName)
 
     int count = 0,
         cityId = getCityIdByName(pData, cityName);
+    if (cityId == -1)
+        return -1;
     pLine = pData->lineList->getItem(0);
-    for (int i = 0; i < pData->lineList->getSize(); i++)
+    while (pLine != NULL)
     {
         if (pLine->data.cityId == cityId)
-        {
-            count++;
-        }
+            ++count;
         pLine = pLine->pNext;
     }
-    if (count == 0)
-        count = -1;
-
     return count;
 }
 
@@ -546,6 +499,7 @@ int insertStation(TDataset *&pData, string csvDescription)
     {
         indexOfComma = csvDescription.find(',');
         tmp = csvDescription.substr(0, indexOfComma);
+        RemoveChar(tmp, '"');
         switch (i)
         {
         case 0:
@@ -608,7 +562,14 @@ int removeStation(TDataset *&pData, int stationId)
     for (int i = 0; i < pData->trackList->getSize(); i++)
     {
         if ((begPos = pTrack->data.geometry.find(stationPoint)) != string::npos)
-            pTrack->data.geometry.erase(begPos, pointLength);
+        {
+            string str = pTrack->data.geometry;
+            if (str[begPos + pointLength] == ')')
+                str.erase(begPos - 1, pointLength);
+            else
+                str.erase(begPos, pointLength + 1);
+            pTrack->data.geometry = str;
+        }
         pTrack = pTrack->pNext;
     }
 
@@ -634,8 +595,7 @@ int updateStation(TDataset *&pData, int stationId, string csvDescription)
         return -1;
 
     // get for later update in track
-    string preStationPoint = pStation->data.geometry;
-    preStationPoint = extract(preStationPoint, '(', ')');
+    string oldStationPoint = extract(pStation->data.geometry, '(', ')');
 
     // update station
     int indexOfComma, i = 0;
@@ -644,6 +604,7 @@ int updateStation(TDataset *&pData, int stationId, string csvDescription)
     {
         indexOfComma = csvDescription.find(',');
         tmp = csvDescription.substr(0, indexOfComma);
+        RemoveChar(tmp, '"');
         switch (i)
         {
         case 0:
@@ -674,15 +635,18 @@ int updateStation(TDataset *&pData, int stationId, string csvDescription)
     } while (i <= 4);
 
     // update station in track
-    string stationPoint = pStation->data.geometry;
-    stationPoint = extract(stationPoint, '(', ')');
+    string newStationPoint = extract(pStation->data.geometry, '(', ')');
     L1Item<TTrack> *pTrack = pData->trackList->getItem(0);
-    int begPos, pointLength = stationPoint.length();
+    int begPos, oldPointLength = oldStationPoint.length();
     for (int i = 0; i < pData->trackList->getSize(); i++)
     {
-        if ((begPos = pTrack->data.geometry.find(stationPoint)) != string::npos)
+        if ((begPos = pTrack->data.geometry.find(oldStationPoint)) != string::npos)
         {
-            pTrack->data.geometry.replace(begPos, pointLength, stationPoint);
+            if (pTrack->data.id == 3816)
+                cout << "OLD\n" << pTrack->data.geometry << endl;
+            pTrack->data.geometry.replace(begPos, oldPointLength, newStationPoint);
+            if (pTrack->data.id == 3816)
+                cout << "NEW\n" << pTrack->data.geometry << endl;
         }
         pTrack = pTrack->pNext;
     }
@@ -718,7 +682,6 @@ int insertStationToLine(TDataset *&pData, int stationId, int lineId, int pos)
         pStationLine = pStationLine->pNext;
     }
 
-    
     if (pos < currIndexStation)
     {
         pData->stationLineList->insert(arrStationLine[pos], stationLine);
@@ -765,11 +728,11 @@ void *listStationsInCity(TDataset *pData, string cityName, int *&rs, int &numOfS
         pStation = pStation->pNext;
     }
 
-    if (numOfStation == 0)
-    {
-        rs[0] = -1;
-        numOfStation = 1;
-    }
+    // if (numOfStation == 0)
+    // {
+    //     rs[0] = -1;
+    //     numOfStation = 1;
+    // }
 }
 
 void *listLinesInCity(TDataset *pData, string cityName, int *&rs, int &numOfLines)
@@ -788,11 +751,11 @@ void *listLinesInCity(TDataset *pData, string cityName, int *&rs, int &numOfLine
         pLine = pLine->pNext;
     }
 
-    if (numOfLines == 0)
-    {
-        rs[0] = -1;
-        numOfLines = 1;
-    }
+    // if (numOfLines == 0)
+    // {
+    //     rs[0] = -1;
+    //     numOfLines = 1;
+    // }
 }
 
 void *listStationsInLine(TDataset *pData, int lineId, int *&rs, int &numOfStation)
@@ -810,9 +773,9 @@ void *listStationsInLine(TDataset *pData, int lineId, int *&rs, int &numOfStatio
         pStationLine = pStationLine->pNext;
     }
 
-    if (numOfStation == 0)
-    {
-        rs[0] = -1;
-        numOfStation = 1;
-    }
+    // if (numOfStation == 0)
+    // {
+    //     rs[0] = -1;
+    //     numOfStation = 1;
+    // }
 }

@@ -1,0 +1,115 @@
+17:16 21/12/2019
+
+| Request | Output | Description | 
+|:--------|:-------|-------------|
+##########
+| CL | integer | Count the number of lines in the dataset.|
+#
+CL: 1343
+
+##########
+| CL <city_name> | integer | Count the number of lines in the given city. If the city does not exist, return -1.|
+#
+CL Ha Noi: -1
+#
+CL London: 0
+CL Tokyo: 253
+CL New York: 70
+CL Osaka: 112
+
+##########
+| LSC <city_name> | integer array | List stations (``station_id``) of a city (given <city\_name>). The order of stations is determined by their appearance in ``stations.csv``.|
+#
+LSC New York: 13713 13712 13715 13714 13717 13718 <...>
+LSC Tokyo: 7694 7695 7696 7697 7698 7699 <...>
+#
+LSC Ha Noi:
+
+##########
+| LLC <city_name> | integer array | List lines (``line_id``) of a city (given <city\_name>). The order of this list is given in ``lines.csv``.|
+#
+LLC Osaka: 1471 1472 1473 1474 1475 1476 1477 1478 1479 <...>
+#
+LLC Ha Noi:
+
+##########
+| LSL <line_id> | integer array | List stations (``station_id``) of a line with <line\_id>. The order of station is determined by its appearance in ``station_lines.csv``.|
+#
+LSL 123456:
+#
+LSL 375: 8008 8016 8010 8014 8012 8018 8020 8022 8021 8015 8007 8009 8011 8017 8019 8023 8013 8024
+
+##########
+| FC <city_name> | integer | Find a city with the given name. Return the first ``city_id`` if found, -1 otherwise.|
+#
+FC Ha Noi: -1
+#
+FC Tokyo: 114
+FC New York: 206
+
+##########
+| FS <station_name> | integer | Find a station with the given name. Return the first ``station_id`` if found, -1 otherwise.|
+#
+FS Ha Noi: -1
+#
+FS Keage: 15774
+FS "Alcantara": 117
+FS Alcantara: 117
+FS: 545
+FS Kilómetro 0,72: 8814
+
+##########
+| SLP <station_id> <track_id> | integer | Find the position of a station in a track. Return the index of that station if found, -1 otherwise. The order of station is determined by ``LINESTRING`` in ``tracks.csv``.|
+#
+SLP 1234 5678: -1
+#
+SLP 7722 3467: 8
+//SLP 7722 3467: 2
+
+##########
+| IS <csv_description> | integer | Insert a station into the dataset. The information of the station is given in ``csv_description``, which includes everything you see in ``stations.csv`` except the ``id`` and ``city_id``. If this operation success, we have to receive ``station id`` as the return value.  Note that we keep track the **maximum id** of every entities in the dataset so that when you insert a new instance, the allocated id should be the ``id_max + 1`` |
+#
+IS "Ha Noi",POINT(4.6820619 45.8164293),0,0,999999: 16559
+FS Ha Noi: 16559
+SLP 16559 4209: 8
+
+##########
+| RS <station_id> | integer | Remove a station from the dataset. As a consequence, every records related to the station must be removed. Return 0 if success, return -1 if the station does not exist or can not be removed.| 
+#
+RS 7722: 0
+SLP 7722 3467: -1
+#
+RS 8005: 0
+SLP 8004 3826: 2
+RS 6787: 0
+SLP 6785 2349: 72
+RS 6774: 0
+SLP 6782 2349: 6
+
+##########
+| US <station_id> <csv_description> | integer | Update the information of a station with id ``<station_id>``. Return 0 if success, and -1 otherwise.|
+#
+US 7994 "Ha Noi",POINT(19.081775 47.500507),1981,1981,999999: 0
+LSL 373: 7989 7992 7994 7997 <...>
+FS Ha Noi: 7994
+SLP 7994 3816: 1
+
+##########
+| ISL <station_id> <line_id> <p_i> | integer | Insert a station ``<station_id>`` to a line ``<line_id>`` at index ``<p_i>``. Note that the first position has index 0. Return 0 if success, and -1 otherwise.<br> **NOTE**: The expected result of this request is that when we request LSL, the new station must stay at position <pos>. If the station exists in the line, this operation will fail and no change should be made.|
+#
+ISL 123666 571 0: -1
+ISL 123666 571 -3: -1
+#
+ISL 15311 571 26: -1
+ISL 15311 571 2: 0
+LSL 571: 7771 7764 15311 7763 7729 7772 <...>
+
+##########
+| RSL <station_id> <line_id> | integer | Remove a station ``<station_id>`` from a line ``<line_id>``. <br>Return 0 if success, and -1 otherwise.|
+#
+RSL 123556 571: -1
+#
+RSL 7759 571: 0 
+RSL 7771 571: 0 
+RSL 7772 571: 0
+LSL 571: 7764 7763 7729 7730 7760 7762 7756 7734 7765 7768 7769 7766 7735 7761 7757 7767 7770 7773 6754 7758 7728 7733

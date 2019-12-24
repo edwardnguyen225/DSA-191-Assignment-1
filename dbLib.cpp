@@ -441,9 +441,10 @@ int getPosOfStationInTrack(TDataset *pData, int stationId, int trackId)
     L1Item<TStation> *pStation = findStationById(pData, stationId);
     if (pStation == NULL)
         return -1;
-    string line = extract(pTrack->data.geometry, '(', ')'),
-           point = extract(pStation->data.geometry, '(', ')');
-    cout << point << endl;
+    string line = pTrack->data.geometry,
+           point = pStation->data.geometry;
+    line = extract(line, '(', ')');
+    point = extract(point, '(', ')');
     int index = 0, indexOfComma;
     bool endOfLine = false, isFound = false;
     while (!endOfLine)
@@ -459,6 +460,7 @@ int getPosOfStationInTrack(TDataset *pData, int stationId, int trackId)
             tmp = line;
             endOfLine = true;
         }
+        cout << index << ": " << tmp << " ~ " << point << endl;
         if (tmp == point)
             return index;
         index++;
@@ -565,7 +567,7 @@ int removeStation(TDataset *&pData, int stationId)
         {
             string str = pTrack->data.geometry;
             if (str[begPos + pointLength] == ')')
-                str.erase(begPos - 1, pointLength);
+                str.erase(begPos - 1, pointLength + 1);
             else
                 str.erase(begPos, pointLength + 1);
             pTrack->data.geometry = str;
@@ -595,7 +597,8 @@ int updateStation(TDataset *&pData, int stationId, string csvDescription)
         return -1;
 
     // get for later update in track
-    string oldStationPoint = extract(pStation->data.geometry, '(', ')');
+    string oldStationPoint = pStation->data.geometry;
+    oldStationPoint = extract(oldStationPoint, '(', ')');
 
     // update station
     int indexOfComma, i = 0;
@@ -633,20 +636,16 @@ int updateStation(TDataset *&pData, int stationId, string csvDescription)
         i++;
         csvDescription.erase(0, indexOfComma + 1);
     } while (i <= 4);
-
     // update station in track
-    string newStationPoint = extract(pStation->data.geometry, '(', ')');
+    string newStationPoint = pStation->data.geometry;
+    newStationPoint = extract(newStationPoint, '(', ')');
     L1Item<TTrack> *pTrack = pData->trackList->getItem(0);
     int begPos, oldPointLength = oldStationPoint.length();
     for (int i = 0; i < pData->trackList->getSize(); i++)
     {
         if ((begPos = pTrack->data.geometry.find(oldStationPoint)) != string::npos)
         {
-            if (pTrack->data.id == 3816)
-                cout << "OLD\n" << pTrack->data.geometry << endl;
             pTrack->data.geometry.replace(begPos, oldPointLength, newStationPoint);
-            if (pTrack->data.id == 3816)
-                cout << "NEW\n" << pTrack->data.geometry << endl;
         }
         pTrack = pTrack->pNext;
     }
@@ -727,12 +726,6 @@ void *listStationsInCity(TDataset *pData, string cityName, int *&rs, int &numOfS
         }
         pStation = pStation->pNext;
     }
-
-    // if (numOfStation == 0)
-    // {
-    //     rs[0] = -1;
-    //     numOfStation = 1;
-    // }
 }
 
 void *listLinesInCity(TDataset *pData, string cityName, int *&rs, int &numOfLines)
@@ -750,12 +743,6 @@ void *listLinesInCity(TDataset *pData, string cityName, int *&rs, int &numOfLine
         }
         pLine = pLine->pNext;
     }
-
-    // if (numOfLines == 0)
-    // {
-    //     rs[0] = -1;
-    //     numOfLines = 1;
-    // }
 }
 
 void *listStationsInLine(TDataset *pData, int lineId, int *&rs, int &numOfStation)
@@ -772,10 +759,4 @@ void *listStationsInLine(TDataset *pData, int lineId, int *&rs, int &numOfStatio
         }
         pStationLine = pStationLine->pNext;
     }
-
-    // if (numOfStation == 0)
-    // {
-    //     rs[0] = -1;
-    //     numOfStation = 1;
-    // }
 }
